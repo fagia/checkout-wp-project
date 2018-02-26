@@ -7,3 +7,4 @@
     update: yes
   become: True
   become_user: "{{ default_user }}"
+  when: wp_repo_name is defined
