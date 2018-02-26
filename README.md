@@ -1,2 +1,2 @@
-Checkout ECOSOLUXION.CH
+Checkout a WP project
 =========
