@@ -1,6 +1,6 @@
 ---
 
-- name: Checkout and update {{ wp_repo_name }} repository
+- name: "Checkout and update {{ wp_repo_name }} repository"
   git:
     repo: "https://mcajani:Cj587064@bitbucket.org/mcajani/{{ wp_repo_name }}.git"
     dest: "~/Downloads/{{ wp_repo_name }}"
