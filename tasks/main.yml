@@ -1,0 +1,9 @@
+---
+
+- name: Checkout and update ecosoluxion.ch repository
+  git:
+    repo: "https://mcajani:Cj587064@bitbucket.org/mcajani/ecosoluxion.ch.git"
+    dest: ~/Downloads/ecosoluxion.ch
+    update: yes
+  become: True
+  become_user: '{{ default_user }}'
