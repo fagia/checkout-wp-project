@@ -3,7 +3,7 @@
 - name: Checkout and update {{ wp_repo_name }} repository
   git:
     repo: "https://mcajani:Cj587064@bitbucket.org/mcajani/{{ wp_repo_name }}.git"
-    dest: ~/Downloads/{{ wp_repo_name }}
+    dest: "~/Downloads/{{ wp_repo_name }}"
     update: yes
   become: True
-  become_user: '{{ default_user }}'
+  become_user: "{{ default_user }}"
