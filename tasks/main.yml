@@ -18,3 +18,10 @@
   become: True
   become_user: "{{ default_user }}"
   when: wp_db_name is defined
+
+# TODO1: create db user too
+# TODO2: db properties from wp config
+# TODO3: schema with right collate
+# TODO4: if safe, import schema from dump
+# TODO5: dump from ftp backup
+# TODO6: ? trigger remote db backup ?
