@@ -1,8 +1,7 @@
 ---
 
 - set_fact:
-    wp_repo_checkout_dir="~/Downloads/{{ wp_repo_name }}"
-  when: wp_repo_name is defined
+    wp_repo_checkout_dir="~/Downloads/{{ wp_repo_name | default('wp') }}"
 
 - name: "Checkout and update {{ wp_repo_name }} repository"
   git:
