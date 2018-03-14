@@ -1,12 +1,19 @@
 ---
 
+- set_fact:
+    wp_repo_checkout_dir="~/Downloads/{{ wp_repo_name }}"
+
 - name: "Checkout and update {{ wp_repo_name }} repository"
   git:
     repo: "https://mcajani:Cj587064@bitbucket.org/mcajani/{{ wp_repo_name }}.git"
-    dest: "~/Downloads/{{ wp_repo_name }}"
+    dest: "{{ wp_repo_checkout_dir }}"
     update: yes
   become: True
   become_user: "{{ default_user }}"
+  when: wp_repo_name is defined
+
+- name: Retrieving wp-configs
+  import_tasks: retrieve-wp-configs.yml
   when: wp_repo_name is defined
 
 - name: "Create {{ wp_db_name }} DB schema"
