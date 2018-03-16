@@ -1,11 +1,14 @@
 ---
 
 - set_fact:
-    wp_repo_checkout_dir="~/Downloads/{{ wp_repo_name }}"
+    wp_repo_name="{{ wp_repo_url.rsplit('/', 1)[1].rsplit('.')[0] }}"
+
+- set_fact:
+    wp_repo_checkout_dir="/home/{{ default_user }}/Downloads/{{ wp_repo_name }}"
 
 - name: "Checkout and update {{ wp_repo_name }} repository"
   git:
-    repo: "https://mcajani:Cj587064@bitbucket.org/mcajani/{{ wp_repo_name }}.git"
+    repo: "{{ wp_repo_url }}"
     dest: "{{ wp_repo_checkout_dir }}"
     update: yes
   become: True
