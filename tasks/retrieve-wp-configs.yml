@@ -2,6 +2,7 @@
 
 - set_fact:
     wp_configs_working_dir="/tmp/wp_configs_for_{{ wp_repo_name }}"
+  when: wp_repo_name is defined
 
 - name: Init temporary working directory
   file:
@@ -9,6 +10,7 @@
     path: "{{ wp_configs_working_dir }}"
   become: True
   become_user: "{{ default_user }}"
+  when: wp_configs_working_dir is defined
 
 - name: Add scripts to working dir
   template:
@@ -21,18 +23,22 @@
     - wp-settings.php
   become: True
   become_user: "{{ default_user }}"
+  when: wp_configs_working_dir is defined
 
 - name: Copy wp-config.php to working dir
   command: "cp {{ wp_repo_checkout_dir }}/wp-config.php {{ wp_configs_working_dir }}"
   become: True
   become_user: "{{ default_user }}"
+  when: wp_configs_working_dir is defined
 
 - name: Register DB_NAME config
-  command: "php {{ wp_repo_checkout_dir }}/get-wp-config.php DB_NAME"
+  command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_NAME"
   register: get_db_name
+  when: wp_configs_working_dir is defined
 
 - set_fact:
     wp_db_name="{{ get_db_name.stdout }}"
+  when: get_db_name is defined
 
 - name: Cleanup temporary working directory
   file:
@@ -40,3 +46,4 @@
     path: "{{ wp_configs_working_dir }}"
   become: True
   become_user: "{{ default_user }}"
+  when: wp_configs_working_dir is defined
