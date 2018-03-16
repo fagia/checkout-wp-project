@@ -20,6 +20,8 @@
 - name: "Create {{ wp_db_name }} DB schema"
   mysql_db:
     name: "{{ wp_db_name }}"
+    collation: "{{ wp_db_collate }}"
+    encoding: "{{ wp_db_charset }}"
     state: present
     login_user: "root"
     login_password: "{{ default_user_password }}"
@@ -30,7 +32,7 @@
   mysql_user:
     name: "{{ wp_db_user }}"
     password: "{{ wp_db_password }}"
-    priv: "localhost.{{ wp_db_name }}:ALL"
+    priv: "*.{{ wp_db_name }}:ALL"
     state: present
     login_user: "root"
     login_password: "{{ default_user_password }}"
