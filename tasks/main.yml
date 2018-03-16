@@ -2,7 +2,6 @@
 
 - set_fact:
     wp_repo_checkout_dir="~/Downloads/{{ wp_repo_name }}"
-  when: wp_repo_name is defined
 
 - name: "Checkout and update {{ wp_repo_name }} repository"
   git:
@@ -11,11 +10,9 @@
     update: yes
   become: True
   become_user: "{{ default_user }}"
-  when: wp_repo_name is defined
 
 - name: Retrieving wp-configs
   import_tasks: retrieve-wp-configs.yml
-  when: wp_repo_name is defined
 
 - name: "Create {{ wp_db_name }} DB schema"
   mysql_db:
@@ -25,11 +22,9 @@
     login_password: "{{ default_user_password }}"
   become: True
   become_user: "{{ default_user }}"
-  when: wp_db_name is defined
 
 # TODO1: create db user too
-# TODO2: db properties from wp config
 # TODO3: schema with right collate
-# TODO4: if safe, import schema from dump
-# TODO5: dump from ftp backup
-# TODO6: ? trigger remote db backup ?
+# TODO4: if safe, import schema from dump -> NI: local ansible task not binded to provisioning
+# TODO5: fetch dump from ftp backup
+# TODO6: ? trigger remote db backup ? -> NO: ithemes security

@@ -2,7 +2,6 @@
 
 - set_fact:
     wp_configs_working_dir="/tmp/wp_configs_for_{{ wp_repo_name }}"
-  when: wp_repo_name is defined
 
 - name: Init temporary working directory
   file:
@@ -10,35 +9,61 @@
     path: "{{ wp_configs_working_dir }}"
   become: True
   become_user: "{{ default_user }}"
-  when: wp_configs_working_dir is defined
 
 - name: Add scripts to working dir
   template:
-    src: "{{ item }}"
+    src: "{{ script_item }}"
     dest: "{{ wp_configs_working_dir }}"
     force: no
     mode: 0644
   with_items:
     - get-wp-config.php
     - wp-settings.php
+  loop_control:
+    loop_var: script_item
   become: True
   become_user: "{{ default_user }}"
-  when: wp_configs_working_dir is defined
 
 - name: Copy wp-config.php to working dir
   command: "cp {{ wp_repo_checkout_dir }}/wp-config.php {{ wp_configs_working_dir }}"
   become: True
   become_user: "{{ default_user }}"
-  when: wp_configs_working_dir is defined
 
 - name: Register DB_NAME config
   command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_NAME"
-  register: get_db_name
-  when: wp_configs_working_dir is defined
-
+  register: found_config
 - set_fact:
-    wp_db_name="{{ get_db_name.stdout }}"
-  when: get_db_name is defined
+    wp_db_name="{{ found_config.stdout }}"
+
+- name: Register DB_USER config
+  command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_USER"
+  register: found_config
+- set_fact:
+    wp_db_user="{{ found_config.stdout }}"
+
+- name: Register DB_PASSWORD config
+  command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_PASSWORD"
+  register: found_config
+- set_fact:
+    wp_db_password="{{ found_config.stdout }}"
+
+- name: Register DB_HOST config
+  command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_HOST"
+  register: found_config
+- set_fact:
+    wp_db_host="{{ found_config.stdout }}"
+
+- name: Register DB_CHARSET config
+  command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_CHARSET"
+  register: found_config
+- set_fact:
+    wp_db_charset="{{ found_config.stdout }}"
+
+- name: Register DB_COLLATE config
+  command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_COLLATE"
+  register: found_config
+- set_fact:
+    wp_db_collate="{{ found_config.stdout }}"
 
 - name: Cleanup temporary working directory
   file:
@@ -46,4 +71,3 @@
     path: "{{ wp_configs_working_dir }}"
   become: True
   become_user: "{{ default_user }}"
-  when: wp_configs_working_dir is defined
