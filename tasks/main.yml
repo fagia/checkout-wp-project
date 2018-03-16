@@ -23,8 +23,14 @@
   become: True
   become_user: "{{ default_user }}"
 
-# TODO1: create db user too
+- name: "Create {{ wp_db_user }} DB user"
+  mysql_user:
+    name: "{{ wp_db_user }}"
+    password: "{{ wp_db_password }}"
+    priv: "localhost.{{ wp_db_name }}:ALL"
+    state: present
+
 # TODO3: schema with right collate
-# TODO4: if safe, import schema from dump -> NI: local ansible task not binded to provisioning
-# TODO5: fetch dump from ftp backup
-# TODO6: ? trigger remote db backup ? -> NO: ithemes security
+# TODO4(future): if safe, import schema from dump -> NI: local ansible task not binded to provisioning
+# TODO5(future): fetch dump from ftp backup
+# TODO6(future): ? trigger remote db backup ? -> NO: ithemes security
