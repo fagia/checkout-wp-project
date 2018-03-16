@@ -32,14 +32,13 @@
   mysql_user:
     name: "{{ wp_db_user }}"
     password: "{{ wp_db_password }}"
-    priv: "localhost.{{ wp_db_name }}:ALL"
+    priv: "{{ wp_db_name }}.*:ALL"
     state: present
     login_user: "root"
     login_password: "{{ default_user_password }}"
   become: True
   become_user: "{{ default_user }}"
 
-# TODO3: schema with right collate
 # TODO4(future): if safe, import schema from dump -> NI: local ansible task not binded to provisioning
 # TODO5(future): fetch dump from ftp backup
 # TODO6(future): ? trigger remote db backup ? -> NO: ithemes security
