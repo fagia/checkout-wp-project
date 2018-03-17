@@ -1,0 +1,11 @@
+<VirtualHost *:80>
+  ServerName {{ wp_hostname | mandatory }}
+  DocumentRoot {{ wp_repo_checkout_dir | mandatory }}
+  ErrorLog ${APACHE_LOG_DIR}/{{ wp_repo_name | mandatory }}-error.log
+  CustomLog ${APACHE_LOG_DIR}/{{ wp_repo_name | mandatory }}-access.log combined
+  <Directory {{ wp_repo_checkout_dir | mandatory }}>
+    Options Indexes FollowSymLinks
+    AllowOverride all 
+    Require all granted
+  </Directory>
+</VirtualHost>
