@@ -54,6 +54,13 @@
     mode: 0644
   become: True
 
+- name: "Add /etc/hosts entry to resolve {{ wp_hostname }} locally"
+  lineinfile:
+    path: /etc/hosts
+    regexp: ".*{{ wp_hostname }}.*"
+    line: "127.0.0.1 {{ wp_hostname }}"
+  become: True
+
 - name: Restart apache
   service:
     name: apache2
