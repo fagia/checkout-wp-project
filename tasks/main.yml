@@ -55,7 +55,7 @@
   become: True
 
 - name: Restart apache
-- service:
+  service:
     name: apache2
     state: restarted
   become: True
