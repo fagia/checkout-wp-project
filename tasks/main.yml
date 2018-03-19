@@ -4,7 +4,7 @@
     wp_repo_name="{{ wp_repo_url.rsplit('/', 1)[1].rsplit('.git')[0] }}"
 
 - set_fact:
-    wp_repo_checkout_dir="/home/{{ default_user }}/Downloads/{{ wp_repo_name }}"
+    wp_repo_checkout_dir="/home/{{ params.user.username }}/Downloads/{{ wp_repo_name }}"
 
 - name: "Checkout and update {{ wp_repo_name }} repository"
   git:
@@ -12,7 +12,7 @@
     dest: "{{ wp_repo_checkout_dir }}"
     update: yes
   become: True
-  become_user: "{{ default_user }}"
+  become_user: "{{ params.user.username }}"
 
 - name: Retrieving wp-configs
   import_tasks: retrieve-wp-configs.yml
@@ -24,9 +24,9 @@
     encoding: "{{ wp_db_charset }}"
     state: present
     login_user: "root"
-    login_password: "{{ default_user_password }}"
+    login_password: "{{ params.user.password }}"
   become: True
-  become_user: "{{ default_user }}"
+  become_user: "{{ params.user.username }}"
 
 - name: "Create {{ wp_db_user }} DB user"
   mysql_user:
@@ -35,9 +35,9 @@
     priv: "{{ wp_db_name }}.*:ALL"
     state: present
     login_user: "root"
-    login_password: "{{ default_user_password }}"
+    login_password: "{{ params.user.password }}"
   become: True
-  become_user: "{{ default_user }}"
+  become_user: "{{ params.user.username }}"
 
 #TODO0: test user login to db
 #TODO2: secure private git accesses
