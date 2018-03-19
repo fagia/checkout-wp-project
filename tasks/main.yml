@@ -40,7 +40,6 @@
   become_user: "{{ default_user }}"
 
 #TODO0: test user login to db
-#TODO1: sublime user settings from provisioning
 #TODO2: secure private git accesses
 # TODO4(future): if safe, import schema from dump -> NI: local ansible task not binded to provisioning
 # TODO5(future): fetch dump from ftp backup
