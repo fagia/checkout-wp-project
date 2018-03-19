@@ -40,7 +40,6 @@
   become_user: "{{ params.user.username }}"
 
 #TODO0: test user login to db
-#TODO2: secure private git accesses
 # TODO4(future): if safe, import schema from dump -> NI: local ansible task not binded to provisioning
 # TODO5(future): fetch dump from ftp backup
 # TODO6(future): ? trigger remote db backup ? -> NO: ithemes security
