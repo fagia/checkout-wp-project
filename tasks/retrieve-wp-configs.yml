@@ -1,7 +1,7 @@
 ---
 
 - set_fact:
-    wp_configs_working_dir="/tmp/wp_configs_for_{{ wp_repo_name }}"
+    wp_configs_working_dir="/tmp/wp_configs_for_{{ wp_hostname | mandatory }}"
 
 - name: Init temporary working directory
   file:

@@ -4,18 +4,16 @@
   import_tasks: install-prerequisites.yml
 
 - set_fact:
-    wp_repo_name="{{ wp_repo_url.rsplit('/', 1)[1].rsplit('.git')[0] }}"
+    wp_repo_checkout_dir="/home/{{ params.user.username }}/Downloads/{{ wp_hostname | mandatory }}"
 
-- set_fact:
-    wp_repo_checkout_dir="/home/{{ params.user.username }}/Downloads/{{ wp_repo_name }}"
-
-- name: "Checkout and update {{ wp_repo_name }} repository"
+- name: "Checkout and update git repository for {{ wp_hostname }}"
   git:
     repo: "{{ wp_repo_url }}"
     dest: "{{ wp_repo_checkout_dir }}"
     update: yes
   become: True
   become_user: "{{ params.user.username }}"
+  when: wp_repo_url is defined
 
 - name: Retrieving wp-configs
   import_tasks: retrieve-wp-configs.yml
@@ -50,7 +48,7 @@
 - name: "Setup vhost for {{ wp_hostname }}"
   template:
     src: "apache-vhost.conf.j2"
-    dest: "/etc/apache2/sites-enabled/{{ wp_repo_name }}-vhost.conf"
+    dest: "/etc/apache2/sites-enabled/{{ wp_hostname | mandatory }}-vhost.conf"
     force: yes
     mode: 0644
   become: True
