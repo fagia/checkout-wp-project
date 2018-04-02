@@ -1,0 +1,5 @@
+---
+
+- name: Install LFTP
+  apt: name=lftp state=latest
+  become: True

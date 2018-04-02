@@ -1,5 +1,8 @@
 ---
 
+- name: Install prerequisites
+  import_tasks: install-prerequisites.yml
+
 - set_fact:
     wp_repo_name="{{ wp_repo_url.rsplit('/', 1)[1].rsplit('.git')[0] }}"
 
