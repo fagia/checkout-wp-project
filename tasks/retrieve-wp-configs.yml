@@ -25,7 +25,7 @@
   become_user: "{{ params.user.username }}"
 
 - name: Copy wp-config.php to working dir
-  command: "cp {{ wp_repo_checkout_dir }}/wp-config.php {{ wp_configs_working_dir }}"
+  command: "cp {{ wp_checkout_dir }}/wp-config.php {{ wp_configs_working_dir }}"
   become: True
   become_user: "{{ params.user.username }}"
 

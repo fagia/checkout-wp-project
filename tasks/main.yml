@@ -4,19 +4,22 @@
   import_tasks: install-prerequisites.yml
 
 - set_fact:
-    wp_repo_checkout_dir="/home/{{ params.user.username }}/Downloads/{{ wp_hostname | mandatory }}"
+    apache_document_root="/home/{{ params.user.username }}/Downloads/{{ wp_hostname | mandatory }}"
+
+- set_fact:
+    wp_checkout_dir="{{ apache_document_root }}/{{ wp_path | default('') }}
 
 - name: "Checkout and update git repository for {{ wp_hostname }}"
   git:
     repo: "{{ wp_repo_url }}"
-    dest: "{{ wp_repo_checkout_dir }}"
+    dest: "{{ wp_checkout_dir }}"
     update: yes
   become: True
   become_user: "{{ params.user.username }}"
   when: wp_repo_url is defined
 
 - name: "Mirror FTP for {{ wp_hostname }}"
-  command: 'lftp {{ wp_ftp.host }} -u {{ wp_ftp.username }},{{ wp_ftp.password }} -e "set ftp:ssl-allow no; glob -d mirror {{ wp_ftp.remote_dir }} {{ wp_repo_checkout_dir }} --parallel=4 --only-newer --exclude .git; quit;"'
+  command: 'lftp {{ wp_ftp.host }} -u {{ wp_ftp.username }},{{ wp_ftp.password }} -e "set ftp:ssl-allow no; glob -d mirror {{ wp_ftp.remote_dir }} {{ wp_checkout_dir }} --parallel=4 --only-newer --exclude .git; quit;"'
   become: True
   become_user: "{{ params.user.username }}"
   when: wp_ftp is defined
