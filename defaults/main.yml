@@ -1,1 +1,3 @@
 ---
+
+db_dump_relative_path: "wp-content/uploads/ithemes-security/backups"

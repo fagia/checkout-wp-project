@@ -49,10 +49,50 @@
   become: True
   become_user: "{{ params.user.username }}"
 
-#TODO0: test user login to db
-# TODO4(future): if safe, import schema from dump -> NI: local ansible task not binded to provisioning
-# TODO5(future): fetch dump from ftp backup
-# TODO6(future): ? trigger remote db backup ? -> NO: ithemes security
+- name: "Count tables in {{ wp_db_name }} DB schema"
+  command: "mysql -uroot -p{{ params.user.password }} -N -B -e \"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{{ wp_db_name }}';\""
+  register: wp_db_name_tables_cmd
+- set_fact:
+    wp_db_name_tables_count: "{{ wp_db_name_tables_cmd.stdout }}"
+
+- name: "Find {{ wp_db_name }} DB schema dump"
+  shell: "ls -Art {{ wp_checkout_dir }}/{{ db_dump_relative_path }}/*.zip | tail -n 1"
+  register: found_db_schema_cmd
+- set_fact:
+    found_db_schema_dump: "{{ found_db_schema_cmd.stdout }}"
+
+- set_fact:
+    import_dump_needed: '{{ found_db_schema_dump != "" and wp_db_name_tables_count == "0" }}'
+    import_dump_file: "/tmp/{{ wp_db_name }}.sql"
+
+- name: "Unzip {{ wp_db_name }} DB schema dump"
+  unarchive:
+    src: "{{ found_db_schema_dump }}"
+    dest: "{{ import_dump_file }}"
+    remote_src: True
+  become: True
+  become_user: "{{ params.user.username }}"
+  when: import_dump_needed
+
+- name: "Import {{ wp_db_name }} DB schema dump"
+  mysql_db:
+    name: "{{ wp_db_name }}"
+    collation: "{{ wp_db_collate }}"
+    encoding: "{{ wp_db_charset }}"
+    state: import
+    target: "{{ import_dump_file }}"
+    login_user: "root"
+    login_password: "{{ params.user.password }}"
+  become: True
+  become_user: "{{ params.user.username }}"
+  when: import_dump_needed
+
+- name: "Cleanup temporary {{ wp_db_name }} DB schema dump"
+  file:
+    state: absent
+    path: "{{ import_dump_file }}"
+  become: True
+  become_user: "{{ params.user.username }}"
 
 - name: "Setup vhost for {{ wp_hostname }}"
   template:
