@@ -55,7 +55,7 @@
 - set_fact:
     wp_db_name_tables_count: "{{ wp_db_name_tables_cmd.stdout }}"
 
-- name: "Find {{ wp_db_name }} DB schema dump"
+- name: "Find {{ wp_db_name }} DB schema dump zip"
   shell: "ls -Art {{ wp_checkout_dir }}/{{ db_dump_relative_path }}/*.zip | tail -n 1"
   register: found_db_schema_cmd
 - set_fact:
@@ -63,15 +63,31 @@
 
 - set_fact:
     import_dump_needed: '{{ found_db_schema_dump != "" and wp_db_name_tables_count == "0" }}'
-    import_dump_file: "/tmp/{{ wp_db_name }}.sql"
+    import_dump_dir: "/tmp/dump_{{ wp_db_name }}"
+
+- name: "Create temporary {{ wp_db_name }} DB schema dump dir"
+  file:
+    state: directory
+    path: "{{ import_dump_dir }}"
+  become: True
+  become_user: "{{ params.user.username }}"
+  when: import_dump_needed
 
 - name: "Unzip {{ wp_db_name }} DB schema dump"
   unarchive:
     src: "{{ found_db_schema_dump }}"
-    dest: "{{ import_dump_file }}"
+    dest: "{{ import_dump_dir }}"
     remote_src: True
   become: True
   become_user: "{{ params.user.username }}"
+  when: import_dump_needed
+
+- name: "Find {{ wp_db_name }} DB schema dump file"
+  shell: "ls -Art {{ import_dump_dir }}/*.sql | tail -n 1"
+  register: import_dump_file_cmd
+  when: import_dump_needed
+- set_fact:
+    import_dump_file: "{{ import_dump_file_cmd.stdout }}"
   when: import_dump_needed
 
 - name: "Import {{ wp_db_name }} DB schema dump"
@@ -90,7 +106,7 @@
 - name: "Cleanup temporary {{ wp_db_name }} DB schema dump"
   file:
     state: absent
-    path: "{{ import_dump_file }}"
+    path: "{{ import_dump_dir }}"
   become: True
   become_user: "{{ params.user.username }}"
 
