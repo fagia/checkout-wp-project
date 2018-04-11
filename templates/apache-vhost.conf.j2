@@ -1,11 +1,20 @@
-<VirtualHost *:80>
+<VirtualHost *:{{ '443' if wp_use_ssl else '80' }}>
   ServerName {{ wp_hostname | mandatory }}
-  DocumentRoot {{ apache_document_root | mandatory }}
+
   ErrorLog ${APACHE_LOG_DIR}/{{ wp_hostname | mandatory }}-error.log
   CustomLog ${APACHE_LOG_DIR}/{{ wp_hostname | mandatory }}-access.log combined
+
+{% if wp_use_ssl %}
+  SSLEngine on
+  SSLCertificateFile {{ ssl_certificate_file }}
+  SSLCertificateKeyFile {{ ssl_certificate_key_file }}
+{% endif %}
+
+  DocumentRoot {{ apache_document_root | mandatory }}
   <Directory {{ apache_document_root | mandatory }}>
     Options Indexes FollowSymLinks
     AllowOverride all 
     Require all granted
   </Directory>
+
 </VirtualHost>
