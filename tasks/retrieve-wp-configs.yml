@@ -7,6 +7,7 @@
   file:
     state: directory
     path: "{{ wp_configs_working_dir }}"
+  changed_when: False
   become: True
   become_user: "{{ params.user.username }}"
 
@@ -21,46 +22,54 @@
     - wp-settings.php
   loop_control:
     loop_var: script_item
+  changed_when: False
   become: True
   become_user: "{{ params.user.username }}"
 
 - name: Copy wp-config.php to working dir
   command: "cp {{ wp_checkout_dir }}/wp-config.php {{ wp_configs_working_dir }}"
+  changed_when: False
   become: True
   become_user: "{{ params.user.username }}"
 
 - name: Register DB_NAME config
   command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_NAME"
+  changed_when: False
   register: found_config
 - set_fact:
     wp_db_name="{{ found_config.stdout }}"
 
 - name: Register DB_USER config
   command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_USER"
+  changed_when: False
   register: found_config
 - set_fact:
     wp_db_user="{{ found_config.stdout }}"
 
 - name: Register DB_PASSWORD config
   command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_PASSWORD"
+  changed_when: False
   register: found_config
 - set_fact:
     wp_db_password="{{ found_config.stdout }}"
 
 - name: Register DB_HOST config
   command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_HOST"
+  changed_when: False
   register: found_config
 - set_fact:
     wp_db_host="{{ found_config.stdout }}"
 
 - name: Register DB_CHARSET config
   command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_CHARSET"
+  changed_when: False
   register: found_config
 - set_fact:
     wp_db_charset="{{ found_config.stdout }}"
 
 - name: Register DB_COLLATE config
   command: "php {{ wp_configs_working_dir }}/get-wp-config.php DB_COLLATE"
+  changed_when: False
   register: found_config
 - set_fact:
     wp_db_collate="{{ found_config.stdout }}"
@@ -69,5 +78,6 @@
   file:
     state: absent
     path: "{{ wp_configs_working_dir }}"
+  changed_when: False
   become: True
   become_user: "{{ params.user.username }}"

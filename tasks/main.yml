@@ -52,12 +52,14 @@
 - name: "Count tables in {{ wp_db_name }} DB schema"
   command: "mysql -uroot -p{{ params.user.password }} -N -B -e \"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{{ wp_db_name }}';\""
   register: wp_db_name_tables_cmd
+  changed_when: False
 - set_fact:
     wp_db_name_tables_count: "{{ wp_db_name_tables_cmd.stdout }}"
 
 - name: "Find {{ wp_db_name }} DB schema dump zip"
   shell: "ls -Art {{ wp_checkout_dir }}/{{ db_dump_relative_path }}/*.zip | tail -n 1"
   register: found_db_schema_cmd
+  changed_when: False
 - set_fact:
     found_db_schema_dump: "{{ found_db_schema_cmd.stdout }}"
 
@@ -121,15 +123,18 @@
 - name: "Add /etc/hosts entry to resolve {{ wp_hostname }} and {{ wp_db_host }} locally"
   lineinfile:
     path: /etc/hosts
-    regexp: ".*{{ item }}.*"
-    line: "127.0.0.1 {{ item }}"
+    regexp: ".*{{ hosts_item }}.*"
+    line: "127.0.0.1 {{ hosts_item }}"
   with_items:
     - "{{ wp_hostname }}"
     - "{{ wp_db_host }}"
+  loop_control:
+    loop_var: hosts_item
   become: True
 
 - name: Restart apache
   service:
     name: apache2
     state: restarted
+  changed_when: False
   become: True
