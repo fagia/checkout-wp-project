@@ -6,3 +6,5 @@ wp_use_ssl: False
 
 ssl_certificate_file: "/etc/ssl/private/{{ ansible_nodename }}/selfsigned.crt"
 ssl_certificate_key_file: "/etc/ssl/private/{{ ansible_nodename }}/privkey.pem"
+
+wp_path: /
