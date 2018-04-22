@@ -1,0 +1,93 @@
+---
+
+- name: "Create {{ wp_db_name }} DB schema"
+  mysql_db:
+    name: "{{ wp_db_name }}"
+    collation: "{{ wp_db_collate }}"
+    encoding: "{{ wp_db_charset }}"
+    state: present
+    login_user: "root"
+    login_password: "{{ params.user.password }}"
+  become: True
+  become_user: "{{ params.user.username }}"
+
+- name: "Create {{ wp_db_user }} DB user"
+  mysql_user:
+    name: "{{ wp_db_user }}"
+    password: "{{ wp_db_password }}"
+    priv: "{{ wp_db_name }}.*:ALL"
+    state: present
+    login_user: "root"
+    login_password: "{{ params.user.password }}"
+  become: True
+  become_user: "{{ params.user.username }}"
+
+- name: "Count tables in {{ wp_db_name }} DB schema"
+  command: "mysql -uroot -p{{ params.user.password }} -N -B -e \"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{{ wp_db_name }}';\""
+  register: wp_db_name_tables_cmd
+  changed_when: False
+- set_fact:
+    wp_db_name_tables_count: "{{ wp_db_name_tables_cmd.stdout }}"
+
+- name: "Find {{ wp_db_name }} DB schema dump zip"
+  shell: "ls -Art {{ site_checkout_dir }}/{{ db_dump_relative_path }}/*.zip | tail -n 1"
+  register: found_db_schema_cmd
+  changed_when: False
+- set_fact:
+    found_db_schema_dump: "{{ found_db_schema_cmd.stdout }}"
+
+- set_fact:
+    import_dump_needed: '{{ found_db_schema_dump != "" and wp_db_name_tables_count == "0" }}'
+    import_dump_dir: "/tmp/dump_{{ wp_db_name }}"
+
+- name: "Create temporary {{ wp_db_name }} DB schema dump dir"
+  file:
+    state: directory
+    path: "{{ import_dump_dir }}"
+  become: True
+  become_user: "{{ params.user.username }}"
+  when: import_dump_needed
+
+- name: "Unzip {{ wp_db_name }} DB schema dump"
+  unarchive:
+    src: "{{ found_db_schema_dump }}"
+    dest: "{{ import_dump_dir }}"
+    remote_src: True
+  become: True
+  become_user: "{{ params.user.username }}"
+  when: import_dump_needed
+
+- name: "Find {{ wp_db_name }} DB schema dump file"
+  shell: "ls -Art {{ import_dump_dir }}/*.sql | tail -n 1"
+  register: import_dump_file_cmd
+  when: import_dump_needed
+- set_fact:
+    import_dump_file: "{{ import_dump_file_cmd.stdout }}"
+  when: import_dump_needed
+
+- name: "Import {{ wp_db_name }} DB schema dump"
+  mysql_db:
+    name: "{{ wp_db_name }}"
+    collation: "{{ wp_db_collate }}"
+    encoding: "{{ wp_db_charset }}"
+    state: import
+    target: "{{ import_dump_file }}"
+    login_user: "root"
+    login_password: "{{ params.user.password }}"
+  become: True
+  become_user: "{{ params.user.username }}"
+  when: import_dump_needed
+
+- name: "Cleanup temporary {{ wp_db_name }} DB schema dump"
+  file:
+    state: absent
+    path: "{{ import_dump_dir }}"
+  become: True
+  become_user: "{{ params.user.username }}"
+
+ - name: "Add /etc/hosts entry to resolve {{ wp_db_host }} locally"
+  lineinfile:
+    path: /etc/hosts
+    regexp: ".*{{ wp_db_host }}.*"
+    line: "127.0.0.1 {{ wp_db_host }}"
+  become: True

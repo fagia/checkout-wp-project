@@ -1,3 +1,7 @@
 ---
 
-dependencies: []
+dependencies:
+  - role: checkout-website-project
+    src: https://github.com/fagia/checkout-website-project.git
+    scm: git
+    version: master

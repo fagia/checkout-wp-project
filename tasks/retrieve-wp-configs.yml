@@ -1,7 +1,7 @@
 ---
 
 - set_fact:
-    wp_configs_working_dir="/tmp/wp_configs_for_{{ wp_hostname | mandatory }}"
+    wp_configs_working_dir="/tmp/wp_configs_for_{{ site.hostname | mandatory }}"
 
 - name: Init temporary working directory
   file:
@@ -27,7 +27,7 @@
   become_user: "{{ params.user.username }}"
 
 - name: Copy wp-config.php to working dir
-  command: "cp {{ wp_checkout_dir }}/wp-config.php {{ wp_configs_working_dir }}"
+  command: "cp {{ site_checkout_dir }}/wp-config.php {{ wp_configs_working_dir }}"
   changed_when: False
   become: True
   become_user: "{{ params.user.username }}"
