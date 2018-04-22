@@ -85,7 +85,7 @@
   become: True
   become_user: "{{ params.user.username }}"
 
- - name: "Add /etc/hosts entry to resolve {{ wp_db_host }} locally"
+- name: "Add /etc/hosts entry to resolve {{ wp_db_host }} locally"
   lineinfile:
     path: /etc/hosts
     regexp: ".*{{ wp_db_host }}.*"
